@@ -86,7 +86,6 @@ void renderText3D(float x, float y, float z, void* font, const std::string& text
     }
 }
 
-
 // --- Initialization Functions ---
 void initLighting() {
     glEnable(GL_LIGHTING);
@@ -113,6 +112,7 @@ void initClouds() {
     }
 }
 
+/*
 void initCars() {
     cars.clear();
     for (int i = 0; i < NUM_CARS; ++i) {
@@ -129,7 +129,7 @@ void initCars() {
         cars.push_back(car);
     }
 }
-
+*/
 
 void init() {
     glClearColor(0.5f, 0.7f, 1.0f, 1.0f); // Initial sky blue
@@ -139,7 +139,7 @@ void init() {
     updateCameraPosition();
     srand(static_cast<unsigned int>(time(nullptr)));
     initClouds();
-    initCars();
+    // initCars();
 
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -157,7 +157,7 @@ void drawGroundPlane() {
     glPopMatrix();
 
     float halfSize = 125.0f;
-    float fenceHeight = 2.0f;
+    float fenceHeight = 4.0f;
     float fenceThickness = 0.2f;
 
     // --- Fence on all four sides ---
@@ -236,7 +236,6 @@ void drawGroundPlane() {
 
     glEnable(GL_LIGHTING);
 }
-
 
 
 void drawSkyAndSunMoon() {
@@ -353,7 +352,6 @@ void drawAnimatedClouds() {
     glDisable(GL_BLEND);
 }
 
-
 void drawRoads() {
     glColor3f(0.18f, 0.18f, 0.20f); // Darker asphalt color
     // Main horizontal road
@@ -465,7 +463,6 @@ void drawDetailedBuilding(float x, float y, float z, float w, float h, float d,
             }
         }
 
-
         // Side Windows (along Z axis, on X faces)
         if (windowsX > 0) {
              float winSpacingX = w / (windowsX +1);
@@ -503,24 +500,154 @@ void drawDetailedBuilding(float x, float y, float z, float w, float h, float d,
     glPopMatrix(); // End of building transformation
 }
 
+void drawTree(float x, float y, float z) {
+    // Tree trunk
+    glColor3f(0.4f, 0.26f, 0.13f); // Brown
+    glPushMatrix();
+    glTranslatef(x, y + 2.0f, z);
+    glScalef(0.7f, 4.0f, 0.5f);
+    drawCube(1.0);
+    glPopMatrix();
+
+    // Tree canopy
+    glColor3f(0.0f, 0.6f, 0.0f); // Green
+    glPushMatrix();
+    glTranslatef(x, y + 6.0f, z);
+    glutSolidSphere(2.0, 16, 16);
+    glPopMatrix();
+}
+
+void drawChair(float x, float y, float z) {
+    glColor3f(0.5f, 0.3f, 0.1f); // Wooden color
+
+    // Seat (wider)
+    glPushMatrix();
+    glTranslatef(x, y + 0.5f, z);
+    glScalef(1.5f, 0.2f, 1.0f);  // Increased width (X scale)
+    drawCube(1.0);
+    glPopMatrix();
+
+    // Backrest (wider)
+    glPushMatrix();
+    glTranslatef(x, y + 1.0f, z - 0.4f);
+    glScalef(1.5f, 1.0f, 0.2f);
+    drawCube(1.0);
+    glPopMatrix();
+
+    // Legs
+    for (float dx = -0.6f; dx <= 0.6f; dx += 1.2f) {
+        for (float dz = -0.4f; dz <= 0.4f; dz += 0.8f) {
+            glPushMatrix();
+            glTranslatef(x + dx, y, z + dz);
+            glScalef(0.1f, 1.0f, 0.1f);
+            drawCube(1.0);
+            glPopMatrix();
+        }
+    }
+}
+
+
+void drawGardenArea() {
+    // Enlarged grass patch
+    glColor3f(0.2f, 0.6f, 0.25f); // Grass green
+    glPushMatrix();
+    glTranslatef(-30, -0.5f, 85); // Center moved slightly back
+    glScalef(30.0f, 1.0f, 30.0f); // Larger area
+    drawCube(1.0);
+    glPopMatrix();
+
+    // Trees spread out more
+    drawTree(-40, 0, 70);
+    drawTree(-20, 0, 80);
+    drawTree(-30, 0, 95);
+    drawTree(-25, 0, 100);
+
+    // Wider chairs with more spacing
+    drawChair(-38, 0, 78);
+    drawChair(-32, 0, 84);
+    drawChair(-26, 0, 90);
+    drawChair(-20, 0, 96);
+}
 
 void drawCampusBuildings() {
-    // Academic Building 1 (Taller, more windows)
-    drawDetailedBuilding(-70, 0, -25, 25, 35, 18,
-                         0.75f, 0.65f, 0.58f, 3, 5, 2, 4);
-    renderText3D(-70, 37, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 1", 0.1f, 0.1f, 0.1f);
+    // Shared Academic Block parameters
+    float abWidth = 35, abHeight = 30, abDepth = 18;
+    float abR = 0.75f, abG = 0.65f, abB = 0.58f;
+    int abXSeg = 3, abYSeg = 5, abZSeg = 2, abWindowDepth = 4;
 
-    // Academic Building 2 (Wider, fewer floors)
-    drawDetailedBuilding(-70, 0, 25, 30, 22, 20,
-                         0.7f, 0.6f, 0.5f, 4, 3, 3, 3);
-    renderText3D(-70, 24, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 2", 0.1f, 0.1f, 0.1f);
+    // Academic Blocks
+    drawDetailedBuilding(-100, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 3", 0.1f, 0.1f, 0.1f);
 
-    // Library (taller, central, glass-heavy)
+    drawDetailedBuilding(-60, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-60, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 1", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(-60, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-60, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 2", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(-100, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 4", 0.1f, 0.1f, 0.1f);
+
+    // Library
+    drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.85f, 0.8f, 0.75f, 5, 4, 3, 5);
+    renderText3D(0, 48, -25, GLUT_BITMAP_HELVETICA_18, "Central Library", 0.08f, 0.08f, 0.08f);
+
+    // Hostels
+    drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
+    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_12, "Dormitory A", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(70, 0, 0, 18, 24, 12, 0.7f, 0.7f, 0.62f, 2, 3, 2, 4);
+    renderText3D(70, 26, 0, GLUT_BITMAP_HELVETICA_12, "Dormitory B", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(70, 0, 35, 18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
+    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_12, "Dormitory C", 0.1f, 0.1f, 0.1f);
+
+    // Admin Block
+    drawDetailedBuilding(0, 0, 25, 40, 50, 25, 0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
+    renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_12, "Admin Block", 0.1f, 0.1f, 0.1f);
+
+    // Cafe
+    drawDetailedBuilding(-30, 0, 60, 22, 18, 15, 0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
+    renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_12, "Campus Cafe", 0.1f, 0.1f, 0.1f);
+
+    // Garden behind Cafe
+    drawGardenArea();
+}
+
+
+/*
+void drawCampusBuildings() {
+    // Shared parameters for Academic Blocks (same as Academic Block 1)
+    float abWidth = 25, abHeight = 35, abDepth = 30;
+    float abR = 0.75f, abG = 0.65f, abB = 0.58f;
+    int abXSeg = 3, abYSeg = 5, abZSeg = 2, abWindowDepth = 4;
+
+    // Academic Block 3 (Left)
+    drawDetailedBuilding(-100, 0, -25, abWidth, abHeight, abDepth,
+                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 3", 0.1f, 0.1f, 0.1f);
+
+    // Academic Block 1 (Center Left)
+    drawDetailedBuilding(-70, 0, -25, abWidth, abHeight, abDepth,
+                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-70, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 1", 0.1f, 0.1f, 0.1f);
+
+    // Academic Block 2 (Center Right)
+    drawDetailedBuilding(-70, 0, 25, abWidth, abHeight, abDepth,
+                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-70, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 2", 0.1f, 0.1f, 0.1f);
+
+    // Academic Block 4 (Right)
+    drawDetailedBuilding(-100, 0, 25, abWidth, abHeight, abDepth,
+                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
+    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 4", 0.1f, 0.1f, 0.1f);
+
+    // Central Library
     drawDetailedBuilding(0, 0, -25, 35, 45, 28,
                          0.85f, 0.8f, 0.75f, 5, 4, 3, 5);
     renderText3D(0, 48, -25, GLUT_BITMAP_HELVETICA_18, "Central Library", 0.08f, 0.08f, 0.08f);
 
-    // Student Hostels (repetitive smaller units)
+    // Student Hostels
     drawDetailedBuilding(70, 0, -35, 18, 24, 12,
                          0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
     renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_12, "Hostel A", 0.1f, 0.1f, 0.1f);
@@ -533,16 +660,17 @@ void drawCampusBuildings() {
                          0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
     renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_12, "Hostel C", 0.1f, 0.1f, 0.1f);
 
-    // Admin Building (Taller and Wider)
+    // Admin Block
     drawDetailedBuilding(0, 0, 25, 40, 50, 25,
                          0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
-    renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_12, "Admin Block", 0.1f, 0.1f, 0.1f);
+    renderText3D(0, 53, 35, GLUT_BITMAP_HELVETICA_12, "Admin Block", 0.1f, 0.1f, 0.1f);
 
-    // Cafeteria Building
+    // Cafeteria
     drawDetailedBuilding(-30, 0, 60, 22, 18, 15,
                          0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
     renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_12, "Campus Cafe", 0.1f, 0.1f, 0.1f);
 }
+*/
 
 void drawFootballCourt() {
     // Scaled-down dimensions
