@@ -112,25 +112,6 @@ void initClouds() {
     }
 }
 
-/*
-void initCars() {
-    cars.clear();
-    for (int i = 0; i < NUM_CARS; ++i) {
-        Car car;
-        car.pathPoint = rand() % (carPath.size() -1) ;
-        car.x = carPath[car.pathPoint].first;
-        car.z = carPath[car.pathPoint].second;
-        car.angle = 0.0f; // Will be updated
-        car.speed = 0.2f + (static_cast<float>(rand() % 100) / 150.0f); // 0.25 to ~0.9
-        car.r = 0.2f + static_cast<float>(rand() % 80) / 100.0f; // More saturated colors
-        car.g = 0.2f + static_cast<float>(rand() % 80) / 100.0f;
-        car.b = 0.2f + static_cast<float>(rand() % 80) / 100.0f;
-        car.movingForward = true;
-        cars.push_back(car);
-    }
-}
-*/
-
 void init() {
     glClearColor(0.5f, 0.7f, 1.0f, 1.0f); // Initial sky blue
     glEnable(GL_DEPTH_TEST);
@@ -630,11 +611,11 @@ void drawCampusBuildings() {
     renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_18, "Academic Block 4", 0.1f, 0.1f, 0.1f);
 
     // Library
-    drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.85f, 0.8f, 0.75f, 5, 4, 3, 5);
+    drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.98f, 0.85f, 0.85f, 5, 4, 3, 5);
     renderText3D(0, 48, -25, GLUT_BITMAP_HELVETICA_18, "Central Library", 0.08f, 0.08f, 0.08f);
 
     // Hostels
-    drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
+    drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4);
     renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 2", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(70, 0, 35, 18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
@@ -643,7 +624,7 @@ void drawCampusBuildings() {
     drawDetailedBuilding(70, 0, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4);
     renderText3D(70, 26, -60, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 1", 0.1f, 0.1f, 0.1f);
 
-    drawDetailedBuilding(70, 0, 60, 18, 24, 12, 0.76f, 0.76f, 0.68f, 2, 3, 2, 4);
+    drawDetailedBuilding(70, 0, 60, 18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4);
     renderText3D(70, 26, 60, GLUT_BITMAP_HELVETICA_18, "Womens Dorm 2", 0.1f, 0.1f, 0.1f);
 
     // Admin Block
@@ -726,7 +707,7 @@ void drawParkingLot(float baseX, float baseY, float baseZ) {
     // Optional: Label or sign
     glColor3f(0, 0, 0);
     glRasterPos3f(baseX, baseY + 0.2f, baseZ - spaceLength - 1.5f);
-    const char* label = "PARKING";
+    const char* label = "Parking";
     for (const char* c = label; *c; c++) {
         glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
     }
