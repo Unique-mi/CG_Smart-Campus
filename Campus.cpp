@@ -632,8 +632,8 @@ void drawCampusBuildings() {
     renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_18, "Admin Block", 0.1f, 0.1f, 0.1f);
 
     // Cafe
-    drawDetailedBuilding(-30, 0, 60, 22, 18, 15, 0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
-    renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_18, "Campus Cafe", 0.1f, 0.1f, 0.1f);
+    drawDetailedBuilding(-30, 0, 60, 22, 20, 15, 0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
+    renderText3D(-30, 22, 60, GLUT_BITMAP_HELVETICA_18, "Campus Cafe", 0.1f, 0.1f, 0.1f);
 
     // Garden behind Cafe
     drawGardenArea();
