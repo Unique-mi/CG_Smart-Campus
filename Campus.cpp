@@ -237,7 +237,6 @@ void drawGroundPlane() {
     glEnable(GL_LIGHTING);
 }
 
-
 void drawSkyAndSunMoon() {
     float skyR1, skyG1, skyB1, skyR2, skyG2, skyB2; // For gradient
     float sunR, sunG, sunB;
@@ -345,7 +344,8 @@ void drawAnimatedClouds() {
     glDepthMask(GL_FALSE);
 
     for (const auto& cloud : clouds) {
-        drawSingleCloud(cloud.x + cloudOffset * cloud.speed * 10, cloud.y, cloud.z, cloud.scale); // Individual speed factor
+        // Reduce the multiplier for slower movement
+        drawSingleCloud(cloud.x + cloudOffset * cloud.speed * 2.0f, cloud.y, cloud.z, cloud.scale);
     }
 
     glDepthMask(GL_TRUE);
@@ -502,72 +502,114 @@ void drawDetailedBuilding(float x, float y, float z, float w, float h, float d,
 
 void drawTree(float x, float y, float z) {
     // Tree trunk
-    glColor3f(0.4f, 0.26f, 0.13f); // Brown
+    glColor3f(0.4f, 0.26f, 0.13f); // Dark brown
     glPushMatrix();
     glTranslatef(x, y + 2.0f, z);
-    glScalef(0.7f, 4.0f, 0.5f);
+    glScalef(0.5f, 4.0f, 0.5f);
     drawCube(1.0);
     glPopMatrix();
 
-    // Tree canopy
-    glColor3f(0.0f, 0.6f, 0.0f); // Green
+    // Canopy layers (three overlapping green spheres for realism)
+    glColor3f(0.0f, 0.5f, 0.0f); // Dark green
     glPushMatrix();
     glTranslatef(x, y + 6.0f, z);
     glutSolidSphere(2.0, 16, 16);
+    glTranslatef(0.7f, 0.5f, 0.3f);
+    glutSolidSphere(1.5, 16, 16);
+    glTranslatef(-1.4f, 0.0f, -0.6f);
+    glutSolidSphere(1.5, 16, 16);
     glPopMatrix();
 }
 
 void drawChair(float x, float y, float z) {
-    glColor3f(0.5f, 0.3f, 0.1f); // Wooden color
+    glColor3f(0.6f, 0.4f, 0.2f); // Wooden color
 
-    // Seat (wider)
+    // Seat
     glPushMatrix();
     glTranslatef(x, y + 0.5f, z);
-    glScalef(1.5f, 0.2f, 1.0f);  // Increased width (X scale)
+    glScalef(2.2f, 0.2f, 1.0f);
     drawCube(1.0);
     glPopMatrix();
 
-    // Backrest (wider)
+    // Backrest
     glPushMatrix();
-    glTranslatef(x, y + 1.0f, z - 0.4f);
-    glScalef(1.5f, 1.0f, 0.2f);
+    glTranslatef(x, y + 1.0f, z - 0.45f);
+    glScalef(2.2f, 1.0f, 0.2f);
     drawCube(1.0);
     glPopMatrix();
+
+    // Armrests
+    for (float dx = -0.55f; dx <= 0.55f; dx += 1.1f) {
+        glPushMatrix();
+        glTranslatef(x + dx, y + 0.75f, z);
+        glScalef(0.1f, 0.1f, 1.0f);
+        drawCube(1.0);
+        glPopMatrix();
+    }
 
     // Legs
-    for (float dx = -0.6f; dx <= 0.6f; dx += 1.2f) {
-        for (float dz = -0.4f; dz <= 0.4f; dz += 0.8f) {
+    for (float dx = -0.55f; dx <= 0.55f; dx += 1.1f) {
+        for (float dz = -0.45f; dz <= 0.45f; dz += 0.9f) {
             glPushMatrix();
             glTranslatef(x + dx, y, z + dz);
-            glScalef(0.1f, 1.0f, 0.1f);
+            glScalef(0.1f, 0.5f, 0.1f);
             drawCube(1.0);
             glPopMatrix();
         }
     }
 }
 
+void drawPathTile(float x, float y, float z) {
+    glColor3f(0.5f, 0.5f, 0.5f); // Stone gray
+    glPushMatrix();
+    glTranslatef(x, y + 0.01f, z);
+    glScalef(1.0f, 0.05f, 1.0f);
+    drawCube(1.0);
+    glPopMatrix();
+}
+
+void drawWalkingPath(float startX, float zCenter, int tileCount) {
+    for (int i = 0; i < tileCount; ++i) {
+        drawPathTile(startX + i * 1.1f, 0, zCenter);
+    }
+}
 
 void drawGardenArea() {
-    // Enlarged grass patch
+    // Wider grass patch
     glColor3f(0.2f, 0.6f, 0.25f); // Grass green
     glPushMatrix();
-    glTranslatef(-30, -0.5f, 85); // Center moved slightly back
-    glScalef(30.0f, 1.0f, 30.0f); // Larger area
+    glTranslatef(-19, -0.5f, 85);
+    glScalef(60.0f, 1.02f, 30.0f);
     drawCube(1.0);
     glPopMatrix();
 
-    // Trees spread out more
-    drawTree(-40, 0, 70);
-    drawTree(-20, 0, 80);
-    drawTree(-30, 0, 95);
-    drawTree(-25, 0, 100);
+    // Walking path
+    drawWalkingPath(-48, 85, 46);
 
-    // Wider chairs with more spacing
-    drawChair(-38, 0, 78);
-    drawChair(-32, 0, 84);
-    drawChair(-26, 0, 90);
-    drawChair(-20, 0, 96);
+    // Trees around the area
+    drawTree(-45, 0, 78);
+    drawTree(-38, 0, 92);
+    drawTree(-30, 0, 76);
+    drawTree(-22, 0, 95);
+    drawTree(-14, 0, 79);
+    drawTree(-6, 0, 94);
+    drawTree(2, 0, 76);
+    drawTree(10, 0, 93);
+
+    // === CHAIRS ===
+    // 4 Chairs facing cafe (assuming cafe is in +Z direction)
+    glPushMatrix(); glTranslatef(-43, 0, 82); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-30, 0, 82); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-17, 0, 82); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-6, 0, 82);  drawChair(0, 0, 0); glPopMatrix();
+
+    // 4 Chairs facing away from cafe (rotated 180°)
+    glPushMatrix(); glTranslatef(-38, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-25, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-12, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
+    glPushMatrix(); glTranslatef(-1, 0, 89);  glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
 }
+
 
 void drawCampusBuildings() {
     // Shared Academic Block parameters
@@ -577,16 +619,16 @@ void drawCampusBuildings() {
 
     // Academic Blocks
     drawDetailedBuilding(-100, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 3", 0.1f, 0.1f, 0.1f);
+    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_18, "Academic Block 3", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(-60, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-60, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 1", 0.1f, 0.1f, 0.1f);
+    renderText3D(-60, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_18, "Academic Block 1", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(-60, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-60, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 2", 0.1f, 0.1f, 0.1f);
+    renderText3D(-60, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_18, "Academic Block 2", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(-100, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 4", 0.1f, 0.1f, 0.1f);
+    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_18, "Academic Block 4", 0.1f, 0.1f, 0.1f);
 
     // Library
     drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.85f, 0.8f, 0.75f, 5, 4, 3, 5);
@@ -594,83 +636,190 @@ void drawCampusBuildings() {
 
     // Hostels
     drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
-    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_12, "Dormitory A", 0.1f, 0.1f, 0.1f);
+    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_18, "Dormitory A", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(70, 0, 0, 18, 24, 12, 0.7f, 0.7f, 0.62f, 2, 3, 2, 4);
-    renderText3D(70, 26, 0, GLUT_BITMAP_HELVETICA_12, "Dormitory B", 0.1f, 0.1f, 0.1f);
+    renderText3D(70, 26, 0, GLUT_BITMAP_HELVETICA_18, "Dormitory B", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(70, 0, 35, 18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
-    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_12, "Dormitory C", 0.1f, 0.1f, 0.1f);
+    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_18, "Dormitory C", 0.1f, 0.1f, 0.1f);
 
     // Admin Block
     drawDetailedBuilding(0, 0, 25, 40, 50, 25, 0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
-    renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_12, "Admin Block", 0.1f, 0.1f, 0.1f);
+    renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_18, "Admin Block", 0.1f, 0.1f, 0.1f);
 
     // Cafe
     drawDetailedBuilding(-30, 0, 60, 22, 18, 15, 0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
-    renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_12, "Campus Cafe", 0.1f, 0.1f, 0.1f);
+    renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_18, "Campus Cafe", 0.1f, 0.1f, 0.1f);
 
     // Garden behind Cafe
     drawGardenArea();
 }
 
+// Draws a single parking space with white marking
+void drawParkingSpace(float x, float y, float z, float angle = 0.0f) {
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    glRotatef(angle, 0, 1, 0);
 
-/*
-void drawCampusBuildings() {
-    // Shared parameters for Academic Blocks (same as Academic Block 1)
-    float abWidth = 25, abHeight = 35, abDepth = 30;
-    float abR = 0.75f, abG = 0.65f, abB = 0.58f;
-    int abXSeg = 3, abYSeg = 5, abZSeg = 2, abWindowDepth = 4;
+    // Pavement for the space
+    glColor3f(0.32f, 0.32f, 0.35f); // Dark gray
+    glPushMatrix();
+    glScalef(2.5f, 0.05f, 5.5f);
+    drawCube(1.0);
+    glPopMatrix();
 
-    // Academic Block 3 (Left)
-    drawDetailedBuilding(-100, 0, -25, abWidth, abHeight, abDepth,
-                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 3", 0.1f, 0.1f, 0.1f);
+    // White marking lines for the space
+    glColor3f(1.0f, 1.0f, 1.0f);
+    // Left line
+    glPushMatrix();
+    glTranslatef(-1.2f, 0.03f, 0);
+    glScalef(0.08f, 0.02f, 5.4f);
+    drawCube(1.0);
+    glPopMatrix();
+    // Right line
+    glPushMatrix();
+    glTranslatef(1.2f, 0.03f, 0);
+    glScalef(0.08f, 0.02f, 5.4f);
+    drawCube(1.0);
+    glPopMatrix();
+    // Back line
+    glPushMatrix();
+    glTranslatef(0, 0.03f, -2.7f);
+    glScalef(2.5f, 0.02f, 0.07f);
+    drawCube(1.0);
+    glPopMatrix();
 
-    // Academic Block 1 (Center Left)
-    drawDetailedBuilding(-70, 0, -25, abWidth, abHeight, abDepth,
-                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-70, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_12, "Academic Block 1", 0.1f, 0.1f, 0.1f);
-
-    // Academic Block 2 (Center Right)
-    drawDetailedBuilding(-70, 0, 25, abWidth, abHeight, abDepth,
-                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-70, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 2", 0.1f, 0.1f, 0.1f);
-
-    // Academic Block 4 (Right)
-    drawDetailedBuilding(-100, 0, 25, abWidth, abHeight, abDepth,
-                         abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_12, "Academic Block 4", 0.1f, 0.1f, 0.1f);
-
-    // Central Library
-    drawDetailedBuilding(0, 0, -25, 35, 45, 28,
-                         0.85f, 0.8f, 0.75f, 5, 4, 3, 5);
-    renderText3D(0, 48, -25, GLUT_BITMAP_HELVETICA_18, "Central Library", 0.08f, 0.08f, 0.08f);
-
-    // Student Hostels
-    drawDetailedBuilding(70, 0, -35, 18, 24, 12,
-                         0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
-    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_12, "Hostel A", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, 0, 18, 24, 12,
-                         0.7f, 0.7f, 0.62f, 2, 3, 2, 4);
-    renderText3D(70, 26, 0, GLUT_BITMAP_HELVETICA_12, "Hostel B", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, 35, 18, 24, 12,
-                         0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
-    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_12, "Hostel C", 0.1f, 0.1f, 0.1f);
-
-    // Admin Block
-    drawDetailedBuilding(0, 0, 25, 40, 50, 25,
-                         0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
-    renderText3D(0, 53, 35, GLUT_BITMAP_HELVETICA_12, "Admin Block", 0.1f, 0.1f, 0.1f);
-
-    // Cafeteria
-    drawDetailedBuilding(-30, 0, 60, 22, 18, 15,
-                         0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
-    renderText3D(-30, 20, 60, GLUT_BITMAP_HELVETICA_12, "Campus Cafe", 0.1f, 0.1f, 0.1f);
+    glPopMatrix();
 }
-*/
+
+// Draws the full parking lot for 20 cars, 2 rows of 10, facing each other
+void drawParkingLot(float baseX, float baseY, float baseZ) {
+    int carsPerRow = 17;
+    float spaceWidth = 2.5f, spaceLength = 5.5f, gapBetweenRows = 2.0f;
+    float lotWidth = carsPerRow * spaceWidth + (carsPerRow - 1) * 0.3f;
+
+    // Draw ground lot area
+    glColor3f(0.28f, 0.28f, 0.32f);
+    glPushMatrix();
+    glTranslatef(baseX, baseY - 0.03f, baseZ);
+    glScalef(lotWidth, 0.07f, 2 * spaceLength + gapBetweenRows + 2.5f);
+    drawCube(1.0);
+    glPopMatrix();
+
+    // Draw parking spaces: one row
+    for (int i = 0; i < carsPerRow; ++i) {
+        float x = baseX - lotWidth / 2 + spaceWidth / 2 + i * (spaceWidth + 0.3f);
+        float z1 = baseZ - (gapBetweenRows + spaceLength) / 2;
+        float z2 = baseZ + (gapBetweenRows + spaceLength) / 2;
+        drawParkingSpace(x, baseY, z1);
+        // Opposite row, rotated 180°
+        drawParkingSpace(x, baseY, z2, 180.0f);
+    }
+
+    // Optional: Add some trees or light poles at the corners for realism
+    drawTree(baseX - lotWidth / 2 - 2.5f, baseY, baseZ - spaceLength);
+    drawTree(baseX + lotWidth / 2 + 2.5f, baseY, baseZ + spaceLength);
+
+    // Optional: Label or sign
+    glColor3f(0, 0, 0);
+    glRasterPos3f(baseX, baseY + 0.2f, baseZ - spaceLength - 1.5f);
+    const char* label = "PARKING";
+    for (const char* c = label; *c; c++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, *c);
+    }
+}
+
+void drawBasketballCourt(float x, float y, float z) {
+    // --- Court base (Dark blue) ---
+    glColor3f(0.0f, 0.0f, 0.5f);
+    glPushMatrix();
+    glTranslatef(x, y, z);
+    drawRectPrism(28.0f, 0.05f, 15.0f); // Court size (X by Z)
+    glPopMatrix();
+
+    // --- Court boundary lines ---
+    glDisable(GL_LIGHTING);
+    glColor3f(1.2f, 1.2f, 1.2f); // White lines
+
+    // Outer lines
+    glPushMatrix(); glTranslatef(x + 14.0f, y + 0.06f, z); drawRectPrism(0.1f, 0.01f, 15.0f); glPopMatrix();
+    glPushMatrix(); glTranslatef(x - 14.0f, y + 0.06f, z); drawRectPrism(0.1f, 0.01f, 15.0f); glPopMatrix();
+    glPushMatrix(); glTranslatef(x, y + 0.06f, z + 7.5f); drawRectPrism(28.0f, 0.01f, 0.1f); glPopMatrix();
+    glPushMatrix(); glTranslatef(x, y + 0.06f, z - 7.5f); drawRectPrism(28.0f, 0.01f, 0.1f); glPopMatrix();
+
+    // Center line (Z axis)
+    glPushMatrix(); glTranslatef(x, y + 0.06f, z); drawRectPrism(0.2f, 0.01f, 15.0f); glPopMatrix();
+
+    // Paint areas on east and west
+    for (float side = -1.0f; side <= 1.0f; side += 2.0f) {
+        float laneX = x + side * (14.0f - 4.0f);
+        glPushMatrix(); glTranslatef(laneX, y + 0.06f, z); drawRectPrism(6.0f, 0.01f, 4.0f); glPopMatrix();
+    }
+
+    // Free throw arcs (East/West)
+    for (float dir = -1.0f; dir <= 1.0f; dir += 2.0f) {
+        float arcX = x + dir * (14.0f - 4.0f);
+        for (int i = 0; i <= 18; ++i) {
+            float theta = M_PI * i / 18;
+            float z1 = z + cos(theta) * 3.0f;
+            float x1 = arcX + sin(theta) * 3.0f * dir;
+            glPushMatrix(); glTranslatef(x1, y + 0.06f, z1); drawRectPrism(0.1f, 0.01f, 0.1f); glPopMatrix();
+        }
+    }
+
+    // --- Hoops (east and west) ---
+    for (float side = -1.0f; side <= 1.0f; side += 2.0f) {
+        float hoopX = x + side * 13.8f;
+        float poleX = x + side * 14.0f;
+        float backboardX = x + side * 13.9f;
+        float rimX = x + side * 13.75f;
+
+        // Pole
+        glColor3f(0.5f, 0.2f, 0.2f);
+        glPushMatrix();
+        glTranslatef(poleX, y + 1.0f, z);
+        drawRectPrism(0.2f, 2.0f, 0.2f);
+        glPopMatrix();
+
+        // Backboard
+        glColor3f(1.0f, 1.0f, 1.0f);
+        glPushMatrix();
+        glTranslatef(backboardX, y + 3.0f, z);
+        drawRectPrism(0.05f, 1.0f, 1.8f);
+        glPopMatrix();
+
+        // Rim
+        glColor3f(1.0f, 0.0f, 0.0f);
+        glPushMatrix();
+        glTranslatef(rimX, y + 2.6f, z);
+        drawRectPrism(0.1f, 0.05f, 0.6f);
+        glPopMatrix();
+    }
+
+    glEnable(GL_LIGHTING);
+
+    // --- Fence ---
+    glColor3f(0.5f, 0.0f, 0.0f);
+    float fenceH = 2.5f;
+    for (float fx = x - 14; fx <= x + 14; fx += 2.0f) {
+        for (float fz = z - 7.5f; fz <= z + 7.5f; fz += 15.0f) {
+            glPushMatrix();
+            glTranslatef(fx, y + fenceH / 2.0f, fz);
+            drawRectPrism(0.1f, fenceH, 0.1f);
+            glPopMatrix();
+        }
+    }
+    for (float fz = z - 7.5f + 2.0f; fz <= z + 7.5f - 2.0f; fz += 2.0f) {
+        for (float fx = x - 14; fx <= x + 14; fx += 28.0f) {
+            glPushMatrix();
+            glTranslatef(fx, y + fenceH / 2.0f, fz);
+            drawRectPrism(0.1f, fenceH, 0.1f);
+            glPopMatrix();
+        }
+    }
+}
+
 
 void drawFootballCourt() {
     // Scaled-down dimensions
@@ -882,7 +1031,6 @@ void drawSimplifiedBirds() {
     }
 }
 
-
 // --- GLUT Callbacks ---
 void display() {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color set by drawSkyAndSunMoon
@@ -897,6 +1045,9 @@ void display() {
     drawGroundPlane();
     drawRoads();
     drawCampusBuildings();
+    drawParkingLot(0, 0, -67);
+    drawBasketballCourt(102, 5.0f, -80.0f);
+
     drawFootballCourt();
     //drawCars();
     drawSimplifiedBirds();
