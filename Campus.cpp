@@ -610,7 +610,6 @@ void drawGardenArea() {
     glPushMatrix(); glTranslatef(-1, 0, 89);  glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
 }
 
-
 void drawCampusBuildings() {
     // Shared Academic Block parameters
     float abWidth = 35, abHeight = 30, abDepth = 18;
@@ -636,13 +635,16 @@ void drawCampusBuildings() {
 
     // Hostels
     drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.72f, 0.65f, 2, 3, 2, 4);
-    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_18, "Dormitory A", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, 0, 18, 24, 12, 0.7f, 0.7f, 0.62f, 2, 3, 2, 4);
-    renderText3D(70, 26, 0, GLUT_BITMAP_HELVETICA_18, "Dormitory B", 0.1f, 0.1f, 0.1f);
+    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 2", 0.1f, 0.1f, 0.1f);
 
     drawDetailedBuilding(70, 0, 35, 18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
-    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_18, "Dormitory C", 0.1f, 0.1f, 0.1f);
+    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_18, "Womens Dorm 1", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(70, 0, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4);
+    renderText3D(70, 26, -60, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 1", 0.1f, 0.1f, 0.1f);
+
+    drawDetailedBuilding(70, 0, 60, 18, 24, 12, 0.76f, 0.76f, 0.68f, 2, 3, 2, 4);
+    renderText3D(70, 26, 60, GLUT_BITMAP_HELVETICA_18, "Womens Dorm 2", 0.1f, 0.1f, 0.1f);
 
     // Admin Block
     drawDetailedBuilding(0, 0, 25, 40, 50, 25, 0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
@@ -820,7 +822,6 @@ void drawBasketballCourt(float x, float y, float z) {
     }
 }
 
-
 void drawFootballCourt() {
     // Scaled-down dimensions
     float length = 60.0f; // Z direction
@@ -936,75 +937,6 @@ void drawFootballCourt() {
     glPopMatrix();
 
     glEnable(GL_LIGHTING);
-}
-
-
-void drawSingleCar(const Car& car) {
-    glColor3f(car.r, car.g, car.b);
-    glPushMatrix();
-    glTranslatef(car.x, 0.6f, car.z); // Base height for wheels on ground
-    glRotatef(car.angle, 0, 1, 0); // Orient car
-
-    // Main Body
-    glPushMatrix();
-    glTranslatef(0, 0.7f, 0); // Body center y
-    drawRectPrism(4.5f, 1.4f, 2.2f);
-    glPopMatrix();
-
-    // Cabin
-    glColor3f(car.r * 0.8f, car.g * 0.8f, car.b * 0.8f);
-    glPushMatrix();
-    glTranslatef(0.3f, 1.4f + 0.2f, 0); // Cabin slightly back and on top
-    drawRectPrism(2.5f, 1.0f, 2.0f);
-    glPopMatrix();
-
-    // Wheels (Cylinders)
-    glColor3f(0.1f, 0.1f, 0.1f); // Black wheels
-    GLUquadric* q = gluNewQuadric();
-    // Front-left
-    glPushMatrix();
-    glTranslatef(1.5f, 0.0f, 1.1f); glRotatef(90, 0,1,0); gluCylinder(q, 0.5, 0.5, 0.3, 10, 1);
-    glPopMatrix();
-    // Front-right
-    glPushMatrix();
-    glTranslatef(1.5f, 0.0f, -1.1f -0.3f);  glRotatef(90, 0,1,0); gluCylinder(q, 0.5, 0.5, 0.3, 10, 1);
-    glPopMatrix();
-    // Rear-left
-    glPushMatrix();
-    glTranslatef(-1.5f, 0.0f, 1.1f);  glRotatef(90, 0,1,0); gluCylinder(q, 0.5, 0.5, 0.3, 10, 1);
-    glPopMatrix();
-    // Rear-right
-    glPushMatrix();
-    glTranslatef(-1.5f, 0.0f, -1.1f -0.3f);  glRotatef(90, 0,1,0); gluCylinder(q, 0.5, 0.5, 0.3, 10, 1);
-    glPopMatrix();
-    gluDeleteQuadric(q);
-
-    // Headlights & Taillights
-    glDisable(GL_LIGHTING); // Make lights emissive
-    if (isNightMode) {
-        glColor3f(1.0f, 1.0f, 0.7f); // Bright yellow headlights
-    } else {
-        glColor3f(0.8f, 0.8f, 0.7f); // Dimmer day headlights
-    }
-    glPushMatrix(); glTranslatef(2.25f, 0.8f, 0.7f); drawRectPrism(0.2f, 0.3f, 0.3f); glPopMatrix(); // Left headlight
-    glPushMatrix(); glTranslatef(2.25f, 0.8f, -0.7f); drawRectPrism(0.2f, 0.3f, 0.3f); glPopMatrix(); // Right headlight
-
-    if (isNightMode) {
-        glColor3f(1.0f, 0.2f, 0.2f); // Bright red taillights
-    } else {
-        glColor3f(0.7f, 0.1f, 0.1f); // Dimmer day taillights
-    }
-    glPushMatrix(); glTranslatef(-2.25f, 0.8f, 0.6f); drawRectPrism(0.2f, 0.3f, 0.25f); glPopMatrix(); // Left taillight
-    glPushMatrix(); glTranslatef(-2.25f, 0.8f, -0.6f); drawRectPrism(0.2f, 0.3f, 0.25f); glPopMatrix(); // Right taillight
-    glEnable(GL_LIGHTING);
-
-    glPopMatrix(); // End car transformation
-}
-
-void drawCars() {
-    for(const auto& car : cars) {
-        drawSingleCar(car);
-    }
 }
 
 void drawSimplifiedBirds() {
@@ -1256,6 +1188,3 @@ int main(int argc, char** argv) {
     glutMainLoop();
     return 0;
 }
-
-
-
