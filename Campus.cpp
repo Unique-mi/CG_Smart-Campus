@@ -138,11 +138,11 @@ void drawGroundPlane() {
     glPopMatrix();
 
     float halfSize = 125.0f;
-    float fenceHeight = 4.0f;
-    float fenceThickness = 0.2f;
+    float fenceHeight = 8.5f;
+    float fenceThickness = 0.8f;
 
     // --- Fence on all four sides ---
-    glColor3f(0.5f, 0.5f, 0.5f);
+    glColor3f(0.4f, 0.4f, 0.4f);
 
     // Front
     glPushMatrix();
@@ -169,9 +169,9 @@ void drawGroundPlane() {
     glPopMatrix();
 
     // --- Road patches near gates (gray) ---
-    glColor3f(0.3f, 0.3f, 0.3f); // Asphalt road color
+    glColor3f(0.18f, 0.18f, 0.20f);  // Asphalt road color
     float roadW = 10.0f;
-    float roadL = 15.0f;
+    float roadL = 80.0f;
     float roadY = 0.01f;
 
     // NW gate road (top-left)
@@ -187,7 +187,7 @@ void drawGroundPlane() {
     glPopMatrix();
 
     // --- Realistic steel blue gates ---
-    float gateW = 4.0f, gateH = 2.5f, gateD = 0.2f, post = 0.4f;
+    float gateW = 4.0f, gateH = 5.5f, gateD = 0.2f, post = 0.4f;
 
     // Gate color
     glColor3f(0.3f, 0.4f, 0.5f); // Metal gray-blue
@@ -1145,7 +1145,7 @@ int main(int argc, char** argv) {
     glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
     glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
     glutInitWindowPosition(50, 50);
-    glutCreateWindow("3D Smart Campus Simulation - Enhanced Realism");
+    glutCreateWindow("3D Smart Campus");
 
     init();
 
