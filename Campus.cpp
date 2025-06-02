@@ -1,5 +1,6 @@
 #include "Campus.h"
 #include "AcademicBlock.h"
+#include "Dormitory.h"
 #include "Library.h"
 #include <GL/glut.h>
 #include <cmath>
@@ -730,18 +731,10 @@ void drawCampusBuildings()
         "Central Library");
 
     // Hostels
-    drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4);
-    renderText3D(70, 26, -35, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 2", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, 35, 18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4);
-    renderText3D(70, 26, 35, GLUT_BITMAP_HELVETICA_18, "Womens Dorm 1", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4);
-    renderText3D(70, 26, -60, GLUT_BITMAP_HELVETICA_18, "Mens Dorm 1", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(70, 0, 60, 18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4);
-    renderText3D(70, 26, 60, GLUT_BITMAP_HELVETICA_18, "Womens Dorm 2", 0.1f, 0.1f, 0.1f);
-
+    drawDormitory(70, 0, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4, "Mens Dorm 2");
+    drawDormitory(70, 0, 35,  18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 1");
+    drawDormitory(70, 0, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4, "Mens Dorm 1");
+    drawDormitory(70, 0, 60,  18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 2");
     // Admin Block
     drawDetailedBuilding(0, 0, 25, 40, 50, 25, 0.6f, 0.65f, 0.7f, 4, 4, 3, 5);
     renderText3D(0, 53, 25, GLUT_BITMAP_HELVETICA_18, "Admin Block", 0.1f, 0.1f, 0.1f);
