@@ -139,7 +139,7 @@ void drawGroundPlane() {
 
     float halfSize = 125.0f;
     float fenceHeight = 8.5f;
-    float fenceThickness = 0.8f;
+    float fenceThickness = 0.3f;
 
     // --- Fence on all four sides ---
     glColor3f(0.4f, 0.4f, 0.4f);
