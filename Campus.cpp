@@ -1,3 +1,4 @@
+#include "Campus.h"
 #include <GL/glut.h>
 #include <cmath>
 #include <vector>
@@ -5,7 +6,7 @@
 #include <iostream>
 #include <cstdlib>
 #include <ctime>
-#include <algorithm> // For std::min/max
+#include <algorithm>
 
 // --- Configuration & Global Variables ---
 const int WINDOW_WIDTH = 1280;
@@ -60,7 +61,6 @@ std::vector<std::pair<float, float>> carPath = {
 void updateCameraPosition() {
     float radX = camAngleX * M_PI / 180.0f;
     float radY = camAngleY * M_PI / 180.0f;
-
     camPosX = camLookAtX + camDistance * cos(radX) * sin(radY);
     camPosY = camLookAtY + camDistance * sin(radX);
     camPosZ = camLookAtZ + camDistance * cos(radX) * cos(radY);
@@ -73,11 +73,10 @@ void drawCube(float size) {
 void drawRectPrism(float w, float h, float d) {
     glPushMatrix();
     glScalef(w, h, d);
-    glutSolidCube(1.0); // Unit cube scaled
+    glutSolidCube(1.0);
     glPopMatrix();
 }
 
-// Function to render bitmap text (simple version for 3D)
 void renderText3D(float x, float y, float z, void* font, const std::string& text, float r, float g, float b) {
     glColor3f(r, g, b);
     glRasterPos3f(x, y, z);
@@ -86,15 +85,13 @@ void renderText3D(float x, float y, float z, void* font, const std::string& text
     }
 }
 
-// --- Initialization Functions ---
 void initLighting() {
     glEnable(GL_LIGHTING);
-    glEnable(GL_LIGHT0); // Main sun/moon light
-    glEnable(GL_COLOR_MATERIAL); // Use glColor for material properties
+    glEnable(GL_LIGHT0);
+    glEnable(GL_COLOR_MATERIAL);
     glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT_AND_DIFFUSE);
-    glEnable(GL_NORMALIZE); // Keep normals unit length
-
-    float globalAmbient[] = {0.3f, 0.3f, 0.3f, 1.0f}; // Slightly brighter global ambient
+    glEnable(GL_NORMALIZE);
+    float globalAmbient[] = {0.3f, 0.3f, 0.3f, 1.0f};
     glLightModelfv(GL_LIGHT_MODEL_AMBIENT, globalAmbient);
     glLightModeli(GL_LIGHT_MODEL_TWO_SIDE, GL_FALSE);
 }
@@ -104,27 +101,31 @@ void initClouds() {
     for (int i = 0; i < NUM_CLOUDS; ++i) {
         Cloud c;
         c.x = (rand() % 400) - 200.0f;
-        c.y = 70.0f + (rand() % 30); // Higher clouds
+        c.y = 70.0f + (rand() % 30);
         c.z = (rand() % 400) - 200.0f;
-        c.scale = 6.0f + (rand() % 100) / 30.0f; // Larger clouds
+        c.scale = 6.0f + (rand() % 100) / 30.0f;
         c.speed = 0.05f + (rand() % 100) / 2000.0f;
         clouds.push_back(c);
     }
 }
 
-void init() {
-    glClearColor(0.5f, 0.7f, 1.0f, 1.0f); // Initial sky blue
+void campusInit() {
+    glClearColor(0.5f, 0.7f, 1.0f, 1.0f);
     glEnable(GL_DEPTH_TEST);
     glShadeModel(GL_SMOOTH);
     initLighting();
     updateCameraPosition();
     srand(static_cast<unsigned int>(time(nullptr)));
     initClouds();
-    // initCars();
-
     glEnable(GL_BLEND);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 }
+
+// --- Drawing Functions ---
+// (All your drawing functions from Campus.cpp go here, copy them exactly, including
+// drawGroundPlane, drawSkyAndSunMoon, drawSingleCloud, drawAnimatedClouds, drawRoads,
+// drawDetailedBuilding, drawTree, drawChair, drawGardenArea, drawCampusBuildings,
+// drawFootballCourt, drawSingleCar, drawCars, drawSimplifiedBirds)
 
 // --- Drawing Functions ---
 
@@ -391,9 +392,7 @@ void drawRoads() {
     glEnable(GL_LIGHTING);
 }
 
-void drawDetailedBuilding(float x, float y, float z, float w, float h, float d,
-                         float r, float g, float b,
-                         int windowsX, int windowsZ_front, int windowsZ_side, int floors) {
+void drawDetailedBuilding(float x, float y, float z, float w, float h, float d, float r, float g, float b, int windowsX, int windowsZ_front, int windowsZ_side, int floors) {
     glColor3f(r, g, b);
     glPushMatrix();
     glTranslatef(x, y + h/2.0f, z);
@@ -584,7 +583,7 @@ void drawGardenArea() {
     glPushMatrix(); glTranslatef(-17, 0, 82); drawChair(0, 0, 0); glPopMatrix();
     glPushMatrix(); glTranslatef(-6, 0, 82);  drawChair(0, 0, 0); glPopMatrix();
 
-    // 4 Chairs facing away from cafe (rotated 180°)
+    // 4 Chairs facing away from cafe (rotated 180ï¿½)
     glPushMatrix(); glTranslatef(-38, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
     glPushMatrix(); glTranslatef(-25, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
     glPushMatrix(); glTranslatef(-12, 0, 89); glRotatef(180, 0, 1, 0); drawChair(0, 0, 0); glPopMatrix();
@@ -696,7 +695,7 @@ void drawParkingLot(float baseX, float baseY, float baseZ) {
         float z1 = baseZ - (gapBetweenRows + spaceLength) / 2;
         float z2 = baseZ + (gapBetweenRows + spaceLength) / 2;
         drawParkingSpace(x, baseY, z1);
-        // Opposite row, rotated 180°
+        // Opposite row, rotated 180ï¿½
         drawParkingSpace(x, baseY, z2, 180.0f);
     }
 
@@ -944,29 +943,21 @@ void drawSimplifiedBirds() {
     }
 }
 
+
 // --- GLUT Callbacks ---
-void display() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color set by drawSkyAndSunMoon
-
-    drawSkyAndSunMoon(); // Call this first to set sky color and light
-
+void campusDisplay() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    drawSkyAndSunMoon();
     glLoadIdentity();
-    gluLookAt(camPosX, camPosY, camPosZ,   // Camera position
-              camLookAtX, camLookAtY, camLookAtZ,    // Look at point
-              0.0f, 1.0f, 0.0f); // Up vector
-
+    gluLookAt(camPosX, camPosY, camPosZ, camLookAtX, camLookAtY, camLookAtZ, 0.0f, 1.0f, 0.0f);
     drawGroundPlane();
     drawRoads();
     drawCampusBuildings();
-    drawParkingLot(0, 0, -67);
-    drawBasketballCourt(102, 5.0f, -80.0f);
-
     drawFootballCourt();
     //drawCars();
     drawSimplifiedBirds();
     drawAnimatedClouds();
 
-    // Draw some text UI for mode
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -983,48 +974,37 @@ void display() {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 
-
     glutSwapBuffers();
 }
 
-void reshape(int w, int h) {
+void campusReshape(int w, int h) {
     if (h == 0) h = 1;
     float ratio = 1.0f * w / h;
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50.0f, ratio, 1.0f, 1000.0f); // Slightly wider FOV
+    gluPerspective(50.0f, ratio, 1.0f, 1000.0f);
     glMatrixMode(GL_MODELVIEW);
 }
 
-void update(int value) {
-    // Day/Night cycle
+void campusUpdate(int value) {
     if (!isNightMode) {
-        sunAngle += 0.08f; // Slower sun movement for longer day
+        sunAngle += 0.08f;
         if (sunAngle > 180.0f) sunAngle = 0.0f;
     } else {
         sunAngle = 225.0f;
     }
-
-    // Cloud animation (individual speeds are now handled in drawAnimatedClouds based on cloud.speed)
     cloudOffset += 0.1f;
-    if (cloudOffset > 800.0f) cloudOffset = -800.0f; // Wider loop for clouds
-
-    // Car animation
+    if (cloudOffset > 800.0f) cloudOffset = -800.0f;
     for(auto& car : cars) {
         int currentTargetIdx = (car.pathPoint + 1) % carPath.size();
         float targetX = carPath[currentTargetIdx].first;
         float targetZ = carPath[currentTargetIdx].second;
-
         float dirX = targetX - car.x;
         float dirZ = targetZ - car.z;
         float dist = sqrt(dirX*dirX + dirZ*dirZ);
-
-        // Update car angle for orientation
         car.angle = atan2(dirX, dirZ) * 180.0f / M_PI;
-
-
-        if (dist < car.speed * 1.8f) { // Increased threshold for smoother turning
+        if (dist < car.speed * 1.8f) {
             car.pathPoint = currentTargetIdx;
             car.x = targetX;
             car.z = targetZ;
@@ -1033,50 +1013,46 @@ void update(int value) {
             car.z += (dirZ / dist) * car.speed;
         }
     }
-
-
     glutPostRedisplay();
-    glutTimerFunc(16, update, 0);
+    glutTimerFunc(16, campusUpdate, 0);
 }
 
-void keyboard(unsigned char key, int x, int y) {
+void campusKeyboard(unsigned char key, int x, int y) {
     switch (key) {
         case 'n':
         case 'N':
             isNightMode = !isNightMode;
             if (!isNightMode) sunAngle = 0;
             break;
-        case 27: // ESC key
+        case 27:
             exit(0);
             break;
     }
     glutPostRedisplay();
 }
 
-void specialKeys(int key, int x, int y) {
-    float panSpeed = 2.5f; // Slightly faster pan
+void campusSpecialKeys(int key, int x, int y) {
+    float panSpeed = 2.5f;
     float radY = camAngleY * M_PI / 180.0f;
-    float viewDirX_ortho = cos(radY); // Orthogonal to view Z for left/right pan
+    float viewDirX_ortho = cos(radY);
     float viewDirZ_ortho = sin(radY);
-
-    float forwardDirX = sin(radY); // Aligned with view Z for forward/back pan
+    float forwardDirX = sin(radY);
     float forwardDirZ = cos(radY);
 
-
     switch (key) {
-        case GLUT_KEY_UP: // Pan "forward" (move lookAt opposite to view direction)
+        case GLUT_KEY_UP:
             camLookAtX -= forwardDirX * panSpeed;
             camLookAtZ -= forwardDirZ * panSpeed;
             break;
-        case GLUT_KEY_DOWN: // Pan "backward"
+        case GLUT_KEY_DOWN:
             camLookAtX += forwardDirX * panSpeed;
             camLookAtZ += forwardDirZ * panSpeed;
             break;
-        case GLUT_KEY_LEFT: // Pan "left"
+        case GLUT_KEY_LEFT:
             camLookAtX -= viewDirX_ortho * panSpeed;
             camLookAtZ += viewDirZ_ortho * panSpeed;
             break;
-        case GLUT_KEY_RIGHT: // Pan "right"
+        case GLUT_KEY_RIGHT:
             camLookAtX += viewDirX_ortho * panSpeed;
             camLookAtZ -= viewDirZ_ortho * panSpeed;
             break;
@@ -1085,8 +1061,7 @@ void specialKeys(int key, int x, int y) {
     glutPostRedisplay();
 }
 
-
-void mouseButton(int button, int state, int x, int y) {
+void campusMouseButton(int button, int state, int x, int y) {
     lastMouseX = x;
     lastMouseY = y;
     if (button == GLUT_LEFT_BUTTON) {
@@ -1094,8 +1069,8 @@ void mouseButton(int button, int state, int x, int y) {
     } else if (button == GLUT_RIGHT_BUTTON) {
         mouseRightDown = (state == GLUT_DOWN);
     } else if (button == 3) {
-        camDistance -= 4.0f; // Finer zoom
-        if (camDistance < 5.0f) camDistance = 5.0f; // Min zoom closer
+        camDistance -= 4.0f;
+        if (camDistance < 5.0f) camDistance = 5.0f;
         updateCameraPosition();
         glutPostRedisplay();
     } else if (button == 4) {
@@ -1106,30 +1081,22 @@ void mouseButton(int button, int state, int x, int y) {
     }
 }
 
-void mouseMove(int x, int y) {
+void campusMouseMove(int x, int y) {
     float dx = x - lastMouseX;
     float dy = y - lastMouseY;
 
-    if (mouseLeftDown) { // Orbit
-        camAngleY += dx * 0.2f; // Slower orbit
+    if (mouseLeftDown) {
+        camAngleY += dx * 0.2f;
         camAngleX += dy * 0.2f;
         camAngleX = std::max(1.0f, std::min(89.0f, camAngleX));
     }
-
-    if (mouseRightDown) { // Pan (improved screen-aligned like)
-        float panFactor = 0.05f * (camDistance / 150.0f); // Scale pan speed with distance
-
+    if (mouseRightDown) {
+        float panFactor = 0.05f * (camDistance / 150.0f);
         float radCamY_deg = camAngleY * M_PI / 180.0f;
-        // Screen X-axis in world (camera's right vector)
         float screenRightX = cos(radCamY_deg);
         float screenRightZ = -sin(radCamY_deg);
-
         camLookAtX -= screenRightX * dx * panFactor;
         camLookAtZ -= screenRightZ * dx * panFactor;
-
-        // Screen Y-axis in world (camera's up vector - simplified)
-        // For a more accurate screen-Y pan, you'd need the full camera's up vector.
-        // This approximation moves along global Y, which is often good enough for this style.
         camLookAtY += dy * panFactor;
     }
 
@@ -1139,33 +1106,4 @@ void mouseMove(int x, int y) {
     glutPostRedisplay();
 }
 
-
-int main(int argc, char** argv) {
-    glutInit(&argc, argv);
-    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH | GLUT_ALPHA);
-    glutInitWindowSize(WINDOW_WIDTH, WINDOW_HEIGHT);
-    glutInitWindowPosition(50, 50);
-    glutCreateWindow("3D Smart Campus");
-
-    init();
-
-    glutDisplayFunc(display);
-    glutReshapeFunc(reshape);
-    glutKeyboardFunc(keyboard);
-    glutSpecialFunc(specialKeys);
-    glutMouseFunc(mouseButton);
-    glutMotionFunc(mouseMove);
-    glutTimerFunc(0, update, 0);
-
-    std::cout << "Interactive 3D Smart Campus - Enhanced Realism" << std::endl;
-    std::cout << "Controls:" << std::endl;
-    std::cout << "  N: Toggle Day/Night Mode" << std::endl;
-    std::cout << "  Mouse Left Drag: Orbit Camera" << std::endl;
-    std::cout << "  Mouse Right Drag: Pan Camera" << std::endl;
-    std::cout << "  Mouse Wheel: Zoom Camera" << std::endl;
-    std::cout << "  Arrow Keys: Pan Camera" << std::endl;
-    std::cout << "  ESC: Exit" << std::endl;
-
-    glutMainLoop();
-    return 0;
-}
+// --- End of Campus.cpp ---
