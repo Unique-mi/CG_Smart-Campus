@@ -1,5 +1,6 @@
 #include "Campus.h"
 #include "AcademicBlock.h"
+#include "Library.h"
 #include <GL/glut.h>
 #include <cmath>
 #include <vector>
@@ -607,8 +608,13 @@ drawAcademicBlock(-100, 0, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Aca
 
 
     // Library
-    drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.98f, 0.85f, 0.85f, 5, 4, 3, 5);
-    renderText3D(0, 48, -25, GLUT_BITMAP_HELVETICA_18, "Central Library", 0.08f, 0.08f, 0.08f);
+    drawLibrary(
+        0, 0, -25,
+        35, 45, 28,
+        0.85f, 0.8f, 0.75f,
+        5, 4, 3, 5,
+        "Central Library"
+    );
 
     // Hostels
     drawDetailedBuilding(70, 0, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4);
