@@ -61,6 +61,7 @@ std::vector<std::pair<float, float>> carPath = {
 void updateCameraPosition() {
     float radX = camAngleX * M_PI / 180.0f;
     float radY = camAngleY * M_PI / 180.0f;
+
     camPosX = camLookAtX + camDistance * cos(radX) * sin(radY);
     camPosY = camLookAtY + camDistance * sin(radX);
     camPosZ = camLookAtZ + camDistance * cos(radX) * cos(radY);

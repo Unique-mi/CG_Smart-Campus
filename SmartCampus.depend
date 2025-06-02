@@ -1,0 +1,39 @@
+# depslib dependency file v1.0
+1748882614 source:c:\users\yonas\documents\github\cg_smart-campus\campus main.cpp
+	<GL/glut.h>
+	<cmath>
+	<vector>
+	<string>
+	<iostream>
+	<cstdlib>
+	<ctime>
+	<algorithm>
+
+1748882412 source:c:\users\yonas\documents\github\cg_smart-campus\main.cpp
+	<GL/glut.h>
+	<iostream>
+	"Campus.h"
+
+1748882459 c:\users\yonas\documents\github\cg_smart-campus\campus.h
+
+1748882614 source:c:\users\yonas\documents\github\cg_smart-campus\campus main.txt
+	<GL/glut.h>
+	<cmath>
+	<vector>
+	<string>
+	<iostream>
+	<cstdlib>
+	<ctime>
+	<algorithm>
+
+1748886919 source:c:\users\yonas\documents\github\cg_smart-campus\campus.cpp
+	"Campus.h"
+	<GL/glut.h>
+	<cmath>
+	<vector>
+	<string>
+	<iostream>
+	<cstdlib>
+	<ctime>
+	<algorithm>
+
