@@ -2,6 +2,7 @@
 #include "AcademicBlock.h"
 #include "AdminBlock.h"
 #include "Dormitory.h"
+#include "Cafe.h"
 #include "Library.h"
 #include <GL/glut.h>
 #include <cmath>
@@ -740,8 +741,7 @@ void drawCampusBuildings()
     drawAdminBlock(40, 0, -70, 26, 20, 16, 0.85f, 0.85f, 0.7f, 2, 3, 2, 3, "Admin Block");
 
     // Cafe
-    drawDetailedBuilding(-30, 0, 60, 22, 20, 15, 0.85f, 0.55f, 0.4f, 2, 2, 2, 2);
-    renderText3D(-30, 22, 60, GLUT_BITMAP_HELVETICA_18, "Campus Cafe", 0.1f, 0.1f, 0.1f);
+    drawCafe(-35, 0, 70, 16, 12, 12, 0.9f, 0.75f, 0.75f, 2, 2, 2, 2, "Cafe");
 
     // Garden behind Cafe
     drawGardenArea();
