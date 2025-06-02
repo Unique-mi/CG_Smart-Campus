@@ -944,21 +944,32 @@ void drawSimplifiedBirds() {
     }
 }
 
+// --- GLUT Callbacks ---
 
 // --- GLUT Callbacks ---
+
 void campusDisplay() {
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-    drawSkyAndSunMoon();
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT); // Clear color set by drawSkyAndSunMoon
+
+    drawSkyAndSunMoon(); // Call this first to set sky color and light
+
     glLoadIdentity();
-    gluLookAt(camPosX, camPosY, camPosZ, camLookAtX, camLookAtY, camLookAtZ, 0.0f, 1.0f, 0.0f);
+    gluLookAt(camPosX, camPosY, camPosZ,   // Camera position
+              camLookAtX, camLookAtY, camLookAtZ,    // Look at point
+              0.0f, 1.0f, 0.0f); // Up vector
+
     drawGroundPlane();
     drawRoads();
     drawCampusBuildings();
+    drawParkingLot(0, 0, -67);
+    drawBasketballCourt(102, 5.0f, -80.0f);
+
     drawFootballCourt();
     //drawCars();
     drawSimplifiedBirds();
     drawAnimatedClouds();
 
+    // Draw some text UI for mode
     glMatrixMode(GL_PROJECTION);
     glPushMatrix();
     glLoadIdentity();
@@ -975,6 +986,7 @@ void campusDisplay() {
     glPopMatrix();
     glMatrixMode(GL_MODELVIEW);
 
+
     glutSwapBuffers();
 }
 
@@ -984,28 +996,38 @@ void campusReshape(int w, int h) {
     glViewport(0, 0, w, h);
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
-    gluPerspective(50.0f, ratio, 1.0f, 1000.0f);
+    gluPerspective(50.0f, ratio, 1.0f, 1000.0f); // Slightly wider FOV
     glMatrixMode(GL_MODELVIEW);
 }
 
 void campusUpdate(int value) {
+    // Day/Night cycle
     if (!isNightMode) {
-        sunAngle += 0.08f;
+        sunAngle += 0.08f; // Slower sun movement for longer day
         if (sunAngle > 180.0f) sunAngle = 0.0f;
     } else {
         sunAngle = 225.0f;
     }
+
+    // Cloud animation (individual speeds are now handled in drawAnimatedClouds based on cloud.speed)
     cloudOffset += 0.1f;
-    if (cloudOffset > 800.0f) cloudOffset = -800.0f;
+    if (cloudOffset > 800.0f) cloudOffset = -800.0f; // Wider loop for clouds
+
+    // Car animation
     for(auto& car : cars) {
         int currentTargetIdx = (car.pathPoint + 1) % carPath.size();
         float targetX = carPath[currentTargetIdx].first;
         float targetZ = carPath[currentTargetIdx].second;
+
         float dirX = targetX - car.x;
         float dirZ = targetZ - car.z;
         float dist = sqrt(dirX*dirX + dirZ*dirZ);
+
+        // Update car angle for orientation
         car.angle = atan2(dirX, dirZ) * 180.0f / M_PI;
-        if (dist < car.speed * 1.8f) {
+
+
+        if (dist < car.speed * 1.8f) { // Increased threshold for smoother turning
             car.pathPoint = currentTargetIdx;
             car.x = targetX;
             car.z = targetZ;
@@ -1014,8 +1036,11 @@ void campusUpdate(int value) {
             car.z += (dirZ / dist) * car.speed;
         }
     }
+
+
     glutPostRedisplay();
-    glutTimerFunc(16, campusUpdate, 0);
+    glutTimerFunc(16, campusUpdate, 0); // ~60 FPS
+    // Update camera position based on angle
 }
 
 void campusKeyboard(unsigned char key, int x, int y) {
@@ -1025,7 +1050,7 @@ void campusKeyboard(unsigned char key, int x, int y) {
             isNightMode = !isNightMode;
             if (!isNightMode) sunAngle = 0;
             break;
-        case 27:
+        case 27: // ESC key
             exit(0);
             break;
     }
@@ -1033,27 +1058,29 @@ void campusKeyboard(unsigned char key, int x, int y) {
 }
 
 void campusSpecialKeys(int key, int x, int y) {
-    float panSpeed = 2.5f;
+    float panSpeed = 2.5f; // Slightly faster pan
     float radY = camAngleY * M_PI / 180.0f;
-    float viewDirX_ortho = cos(radY);
+    float viewDirX_ortho = cos(radY); // Orthogonal to view Z for left/right pan
     float viewDirZ_ortho = sin(radY);
-    float forwardDirX = sin(radY);
+
+    float forwardDirX = sin(radY); // Aligned with view Z for forward/back pan
     float forwardDirZ = cos(radY);
 
+
     switch (key) {
-        case GLUT_KEY_UP:
+        case GLUT_KEY_UP: // Pan "forward" (move lookAt opposite to view direction)
             camLookAtX -= forwardDirX * panSpeed;
             camLookAtZ -= forwardDirZ * panSpeed;
             break;
-        case GLUT_KEY_DOWN:
+        case GLUT_KEY_DOWN: // Pan "backward"
             camLookAtX += forwardDirX * panSpeed;
             camLookAtZ += forwardDirZ * panSpeed;
             break;
-        case GLUT_KEY_LEFT:
+        case GLUT_KEY_LEFT: // Pan "left"
             camLookAtX -= viewDirX_ortho * panSpeed;
             camLookAtZ += viewDirZ_ortho * panSpeed;
             break;
-        case GLUT_KEY_RIGHT:
+        case GLUT_KEY_RIGHT: // Pan "right"
             camLookAtX += viewDirX_ortho * panSpeed;
             camLookAtZ -= viewDirZ_ortho * panSpeed;
             break;
@@ -1070,8 +1097,8 @@ void campusMouseButton(int button, int state, int x, int y) {
     } else if (button == GLUT_RIGHT_BUTTON) {
         mouseRightDown = (state == GLUT_DOWN);
     } else if (button == 3) {
-        camDistance -= 4.0f;
-        if (camDistance < 5.0f) camDistance = 5.0f;
+        camDistance -= 4.0f; // Finer zoom
+        if (camDistance < 5.0f) camDistance = 5.0f; // Min zoom closer
         updateCameraPosition();
         glutPostRedisplay();
     } else if (button == 4) {
@@ -1086,18 +1113,26 @@ void campusMouseMove(int x, int y) {
     float dx = x - lastMouseX;
     float dy = y - lastMouseY;
 
-    if (mouseLeftDown) {
-        camAngleY += dx * 0.2f;
+    if (mouseLeftDown) { // Orbit
+        camAngleY += dx * 0.2f; // Slower orbit
         camAngleX += dy * 0.2f;
         camAngleX = std::max(1.0f, std::min(89.0f, camAngleX));
     }
-    if (mouseRightDown) {
-        float panFactor = 0.05f * (camDistance / 150.0f);
+
+    if (mouseRightDown) { // Pan (improved screen-aligned like)
+        float panFactor = 0.05f * (camDistance / 150.0f); // Scale pan speed with distance
+
         float radCamY_deg = camAngleY * M_PI / 180.0f;
+        // Screen X-axis in world (camera's right vector)
         float screenRightX = cos(radCamY_deg);
         float screenRightZ = -sin(radCamY_deg);
+
         camLookAtX -= screenRightX * dx * panFactor;
         camLookAtZ -= screenRightZ * dx * panFactor;
+
+        // Screen Y-axis in world (camera's up vector - simplified)
+        // For a more accurate screen-Y pan, you'd need the full camera's up vector.
+        // This approximation moves along global Y, which is often good enough for this style.
         camLookAtY += dy * panFactor;
     }
 
