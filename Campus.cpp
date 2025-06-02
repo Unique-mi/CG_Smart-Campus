@@ -1,4 +1,5 @@
 #include "Campus.h"
+#include "AcademicBlock.h"
 #include <GL/glut.h>
 #include <cmath>
 #include <vector>
@@ -598,17 +599,12 @@ void drawCampusBuildings() {
     int abXSeg = 3, abYSeg = 5, abZSeg = 2, abWindowDepth = 4;
 
     // Academic Blocks
-    drawDetailedBuilding(-100, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_18, "Academic Block 3", 0.1f, 0.1f, 0.1f);
+    // Example parameters, repeat for each block:
+drawAcademicBlock(-100, 0, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 3");
+drawAcademicBlock(-60, 0, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 1");
+drawAcademicBlock(-60, 0, 25,  35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 2");
+drawAcademicBlock(-100, 0, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 4");
 
-    drawDetailedBuilding(-60, 0, -25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-60, abHeight + 2, -25, GLUT_BITMAP_HELVETICA_18, "Academic Block 1", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(-60, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-60, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_18, "Academic Block 2", 0.1f, 0.1f, 0.1f);
-
-    drawDetailedBuilding(-100, 0, 25, abWidth, abHeight, abDepth, abR, abG, abB, abXSeg, abYSeg, abZSeg, abWindowDepth);
-    renderText3D(-100, abHeight + 2, 25, GLUT_BITMAP_HELVETICA_18, "Academic Block 4", 0.1f, 0.1f, 0.1f);
 
     // Library
     drawDetailedBuilding(0, 0, -25, 35, 45, 28, 0.98f, 0.85f, 0.85f, 5, 4, 3, 5);
