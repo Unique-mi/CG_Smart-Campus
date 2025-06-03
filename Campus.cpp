@@ -14,6 +14,8 @@
 #include <algorithm>
 
 // --- Configuration & Global Variables ---
+
+
 const int WINDOW_WIDTH = 1280;
 const int WINDOW_HEIGHT = 720;
 
@@ -33,6 +35,52 @@ float camPosX, camPosY, camPosZ;
 int lastMouseX, lastMouseY;
 bool mouseLeftDown = false;
 bool mouseRightDown = false;
+
+int buldingStatus[11] = {0};
+
+
+bool hoveredAdminBlock = false;
+bool hoveredAcademic1 = false;
+bool hoveredAcademic2 = false;
+bool hoveredAcademic3 = false;
+bool hoveredAcademic4 = false;
+bool hoveredLibrary = false;
+bool hoveredCafe = false;
+bool hoveredWomensDorm1 = false;
+bool hoveredWomensDorm2 = false;
+bool hoveredMensDorm1 = false;
+bool hoveredMensDorm2 = false;
+bool hoveredAvailability = false;
+
+bool isSelecedAdminBlock = false;
+bool isSelecedAcademic1 = false;
+bool isSelecedAcademic2 = false;
+bool isSelecedAcademic3 = false;
+bool isSelecedAcademic4 = false;
+bool isSelecedLibrary = false;
+bool isSelecedCafe = false;
+bool isSelecedWomensDorm1 = false;
+bool isSelecedWomensDorm2 = false;
+bool isSelecedMensDorm1 = false;
+bool isSelecedMensDorm2 = false;
+
+bool isAdmin = false;
+bool isHoveredUserBox = false; // For info box hover state
+
+void setSelectedFalse()
+{
+    isSelecedAdminBlock = false;
+    isSelecedAcademic1 = false;
+    isSelecedAcademic2 = false;
+    isSelecedAcademic3 = false;
+    isSelecedAcademic4 = false;
+    isSelecedLibrary = false;
+    isSelecedCafe = false;
+    isSelecedWomensDorm1 = false;
+    isSelecedWomensDorm2 = false;
+    isSelecedMensDorm1 = false;
+    isSelecedMensDorm2 = false;
+}
 
 // Animation
 bool isNightMode = false;
@@ -63,6 +111,57 @@ std::vector<std::pair<float, float>> carPath = {
 };
 
 // --- Utility Functions ---
+
+
+void drawInfoBox(int topY, int rightX, int rectWidth, int rectHeight, const std::string &text)
+{
+ 
+    int x = WINDOW_WIDTH - rectWidth - rightX; // 10px from right edge
+    int y = WINDOW_HEIGHT - topY;  
+
+    glMatrixMode(GL_PROJECTION);
+    glPushMatrix();
+    glLoadIdentity();
+    gluOrtho2D(0, WINDOW_WIDTH, 0, WINDOW_HEIGHT);
+    glMatrixMode(GL_MODELVIEW);
+    glPushMatrix();
+    glLoadIdentity();
+
+    glDisable(GL_LIGHTING);
+    glDisable(GL_DEPTH_TEST); // <--- Disable depth test for overlay
+    if (isHoveredUserBox)
+    {
+        glColor3f(0.5f, 0.5f, 0.5f); // light gray background
+    }
+    else
+    {
+        glColor3f(0.95f, 0.95f, 0.95f);
+    }
+
+    glBegin(GL_QUADS);
+    glVertex2i(x, y);
+    glVertex2i(x + rectWidth, y);
+    glVertex2i(x + rectWidth, y - rectHeight);
+    glVertex2i(x, y - rectHeight);
+    glEnd();
+
+    glColor3f(0.0f, 0.0f, 0.0f);
+    glRasterPos2i(x + 15, y - 15);
+
+for (char c : text)
+    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, c);
+
+    glEnable(GL_DEPTH_TEST); // <--- Re-enable depth test for 3D scene
+    glEnable(GL_LIGHTING);
+
+    // Restore matrices
+    glPopMatrix();
+    glMatrixMode(GL_PROJECTION);
+    glPopMatrix();
+    glMatrixMode(GL_MODELVIEW);
+}
+
+
 void updateCameraPosition()
 {
     float radX = camAngleX * M_PI / 180.0f;
@@ -349,18 +448,23 @@ void drawSkyAndSunMoon()
     {
         glDisable(GL_LIGHTING);
         glColor3f(1.0f, 1.0f, 0.9f);
-        glPointSize(1.5f + (rand() % 10) / 10.0f); // Twinkle effect by varying size slightly each frame
         glBegin(GL_POINTS);
         for (int i = 0; i < 150; ++i)
-        { // More stars
+        {
             float r = 250.0f;
-            float theta = (rand() % 360) * M_PI / 180.0f;
-            float phi = (rand() % 180 - 90) * M_PI / 180.0f;
-            if (sin(phi) > 0.05)
+            // Use a hash-like formula for random angles per star
+            float theta = ((i * 97) % 360 + (i * 53) % 180) * M_PI / 180.0f;
+            float phi = (((i * 197) % 180) - 90) * M_PI / 180.0f;
+            if (sin(phi) > 0.05f)
             {
-                glVertex3f(camLookAtX + r * cos(phi) * cos(theta),
-                           camLookAtY + r * sin(phi),
-                           camLookAtZ + r * cos(phi) * sin(theta));
+                // Twinkle: vary size per frame and star
+                float twinkle = 1.5f + (float)((rand() + i * 31) % 10) / 10.0f;
+                glPointSize(twinkle);
+                glVertex3f(
+                    camLookAtX + r * cos(phi) * cos(theta),
+                    camLookAtY + r * sin(phi),
+                    camLookAtZ + r * cos(phi) * sin(theta)
+                );
             }
         }
         glEnd();
@@ -712,39 +816,275 @@ void drawGardenArea()
 
 void drawCampusBuildings()
 {
+
     // Shared Academic Block parameters
     float abWidth = 35, abHeight = 30, abDepth = 18;
     float abR = 0.75f, abG = 0.65f, abB = 0.58f;
     int abXSeg = 3, abYSeg = 5, abZSeg = 2, abWindowDepth = 4;
 
+    float yAdmin = 0;
+    float yLibrary = 0;
+    float yCafe = 0;
+    float yDormW1 = 0;
+    float yDormW2 = 0;
+    float yDormM1 = 0;
+    float yDormM2 = 0;
+    float yAcedem1 = 0;
+    float yAcedem2 = 0;
+    float yAcedem3 = 0;
+    float yAcedem4 = 0;
+
+    if(hoveredAdminBlock)
+    {yAdmin= 0.5;}
+    else {yAdmin = 0;}
+
+    if(hoveredLibrary){yLibrary = 0.5;}
+    else {yLibrary = 0;}
+
+    if(hoveredCafe){yCafe=0.5;}
+    else {yCafe = 0;}
+
+    if(hoveredAcademic1){yAcedem1=0.5;}
+    else {yAcedem1 = 0;}
+
+    if(hoveredAcademic2){yAcedem2=0.5;}
+    else {yAcedem2 = 0;}
+
+    if(hoveredAcademic3){yAcedem3=0.5;}
+    else {yAcedem3 = 0;}
+    if(hoveredAcademic4){yAcedem4=0.5;}
+    else {yAcedem4 = 0;}
+
+    if(hoveredWomensDorm1){yDormW1=0.5;}
+    else {yDormW1 = 0;}
+
+    if(hoveredWomensDorm2){yDormW2=0.5;}
+    else {yDormW2 = 0;}
+
+    if(hoveredMensDorm1){yDormM1=0.5;}
+    else {yDormM1 = 0;}
+
+    if(hoveredMensDorm2){yDormM2=0.5;}
+    else {yDormM2 = 0;}
+
+
     // Academic Blocks
     // Example parameters, repeat for each block:
-    drawAcademicBlock(-100, 0, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 3");
-    drawAcademicBlock(-60, 0, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 1");
-    drawAcademicBlock(-60, 0, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 2");
-    drawAcademicBlock(-100, 0, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 4");
+     drawAcademicBlock(-60, yAcedem1, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 1");
+     drawAcademicBlock(-60, yAcedem2, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 2");
+     drawAcademicBlock(-100, yAcedem3, -25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 3"); 
+     drawAcademicBlock(-100, yAcedem4, 25, 35, 30, 18, 0.75f, 0.65f, 0.58f, 3, 5, 2, 4, "Academic Block 4");
 
     // Library
     drawLibrary(
-        0, 0, -25,
+        0, yLibrary, -25,
         35, 45, 28,
         0.85f, 0.8f, 0.75f,
         5, 4, 3, 5,
         "Central Library");
 
     // Hostels
-    drawDormitory(70, 0, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4, "Mens Dorm 2");
-    drawDormitory(70, 0, 35,  18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 1");
-    drawDormitory(70, 0, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4, "Mens Dorm 1");
-    drawDormitory(70, 0, 60,  18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 2");
+    drawDormitory(70, yDormM1, -60, 18, 24, 12, 0.74f, 0.74f, 0.67f, 2, 3, 2, 4, "Mens Dorm 1");
+    drawDormitory(70, yDormM2, -35, 18, 24, 12, 0.72f, 0.74f, 0.65f, 2, 3, 2, 4, "Mens Dorm 2");
+    drawDormitory(70, yDormW1, 35,  18, 24, 12, 0.75f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 1");
+    drawDormitory(70, yDormW2, 60,  18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 2");
     // Admin Block
-    drawAdminBlock(40, 0, -70, 26, 20, 16, 0.85f, 0.85f, 0.7f, 2, 3, 2, 3, "Admin Block");
 
+drawAdminBlock(40, yAdmin, -70, 26, 20, 16, 0.85f, 0.85f, 0.7f, 2, 3, 2, 3, "Admin Block");
     // Cafe
-    drawCafe(-35, 0, 70, 16, 12, 12, 0.9f, 0.75f, 0.75f, 2, 2, 2, 2, "Cafe");
+    drawCafe(-35, yCafe, 70, 16, 12, 12, 0.9f, 0.75f, 0.75f, 2, 2, 2, 2, "Cafe");
+
+    if(isAdmin)
+{     drawInfoBox(5, 10, 70, 30, "Admin");
+}else
+{     drawInfoBox(5, 10, 70, 30, "User");}
+
+int buldingIndex = -1;
+std::  string bulding[12] = {
+    "Admin Block", "Academic Block 1", "Academic Block 2", "Academic Block 3",
+    "Academic Block 4", "Library", "Womens Dormitory 1", "Womens Dormitory 2",
+    "Mens Dormitory 1", "Mens Dormitory 2", "Cafe","Location"
+};
+
+
+    // Selection takes priority over hover
+if (isSelecedAdminBlock)
+    buldingIndex = 0;
+else if (isSelecedAcademic1)
+    buldingIndex = 1;
+else if (isSelecedAcademic2)
+    buldingIndex = 2;
+else if (isSelecedAcademic3)
+    buldingIndex = 3;
+else if (isSelecedAcademic4)
+    buldingIndex = 4;
+else if (isSelecedLibrary)
+    buldingIndex = 5;
+else if (isSelecedWomensDorm1)
+    buldingIndex = 6;
+else if (isSelecedWomensDorm2)
+    buldingIndex = 7;
+else if (isSelecedMensDorm1)
+    buldingIndex = 8;
+else if (isSelecedMensDorm2)
+    buldingIndex = 9;
+else if (isSelecedCafe)
+    buldingIndex = 10;
+else if (hoveredAdminBlock)
+    buldingIndex = 0;
+else if (hoveredAcademic1)
+    buldingIndex = 1;
+else if (hoveredAcademic2)
+    buldingIndex = 2;
+else if (hoveredAcademic3)
+    buldingIndex = 3;
+else if (hoveredAcademic4)
+    buldingIndex = 4;
+else if (hoveredLibrary)
+    buldingIndex = 5;
+else if (hoveredWomensDorm1)
+    buldingIndex = 6;
+else if (hoveredWomensDorm2)
+    buldingIndex = 7;
+else if (hoveredMensDorm1)
+    buldingIndex = 8;
+else if (hoveredMensDorm2)
+    buldingIndex = 9;
+else if (hoveredCafe)
+    buldingIndex = 10;
+else
+    buldingIndex = 11;
+
+         
+    
+    drawInfoBox(40, 10, 120, 30,bulding[buldingIndex]);
+
+std::string state[12][4] = {
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"Available","Unavailable", "In Use", "Under Maintenance"},
+    {"  ","  ", "  ", "  "}
+};
+
+float Wid = 120.0f; // Offset for hover effect
+if(hoveredAvailability) Wid = 125.0f;
+else Wid = 120.0f;
+
+if(isNightMode && (buldingIndex==0 || buldingIndex==1 || buldingIndex==2 || buldingIndex==3 || buldingIndex==4 || buldingIndex==10))
+drawInfoBox(70, 10, Wid, 30, state[buldingIndex][1]);
+else
+drawInfoBox(70, 10, Wid, 30, state[buldingIndex][buldingStatus[buldingIndex]]);
 
     // Garden behind Cafe
     drawGardenArea();
+}
+
+bool rayIntersectsBox(float rayOrigin[3], float rayDir[3], float boxCenter[3], float boxSize[3])
+{
+    float tmin = -1e9, tmax = 1e9;
+    for (int i = 0; i < 3; ++i) {
+        float minB = boxCenter[i] - boxSize[i] / 2.0f;
+        float maxB = boxCenter[i] + boxSize[i] / 2.0f;
+        if (fabs(rayDir[i]) < 1e-6) {
+            if (rayOrigin[i] < minB || rayOrigin[i] > maxB)
+                return false;
+        } else {
+            float t1 = (minB - rayOrigin[i]) / rayDir[i];
+            float t2 = (maxB - rayOrigin[i]) / rayDir[i];
+            if (t1 > t2) std::swap(t1, t2);
+            tmin = std::max(tmin, t1);
+            tmax = std::min(tmax, t2);
+            if (tmin > tmax) return false;
+        }
+    }
+    return tmax > 0;
+}
+
+void checkHover(int x, int y)
+{
+    GLdouble model[16], proj[16];
+    GLint view[4];
+    glGetDoublev(GL_MODELVIEW_MATRIX, model);
+    glGetDoublev(GL_PROJECTION_MATRIX, proj);
+    glGetIntegerv(GL_VIEWPORT, view);
+
+    int winY = view[3] - y;
+
+    GLdouble wx1, wy1, wz1, wx2, wy2, wz2;
+    
+    gluUnProject(x, winY, 0.0, model, proj, view, &wx1, &wy1, &wz1);
+    gluUnProject(x, winY, 1.0, model, proj, view, &wx2, &wy2, &wz2);
+
+    float rayOrigin[3] = { (float)wx1, (float)wy1, (float)wz1 };
+    float rayDir[3] = { (float)(wx2 - wx1), (float)(wy2 - wy1), (float)(wz2 - wz1) };
+
+    // Normalize direction
+    float len = sqrt(rayDir[0]*rayDir[0] + rayDir[1]*rayDir[1] + rayDir[2]*rayDir[2]);
+    if (len > 1e-6) {
+        rayDir[0] /= len; rayDir[1] /= len; rayDir[2] /= len;
+    }
+
+    float boxCenterAdmin[3] = {40.0f, 10.0f, -70.0f}; // y=0 + h/2 for center
+    float boxSizeAdmin[3] = {26.0f, 20.0f, 16.0f};
+    hoveredAdminBlock = rayIntersectsBox(rayOrigin, rayDir, boxCenterAdmin, boxSizeAdmin);
+
+
+    float boxCenterAcademic1[3] = {-60.0f, 0.0f, -25.0f};
+    float boxSizeAcademic1[3] = {35.0f, 30.0f, 18.0f};
+    hoveredAcademic1 = rayIntersectsBox(rayOrigin, rayDir, boxCenterAcademic1, boxSizeAcademic1);
+
+    float boxCenterAcademic2[3] = {-60.0f, 0.0f, 25.0f};
+    float boxSizeAcademic2[3] = {35.0f, 30.0f, 18.0f};
+    hoveredAcademic2 = rayIntersectsBox(rayOrigin, rayDir, boxCenterAcademic2, boxSizeAcademic2);
+    
+    float boxCenterAcademic3[3] = {-100.0f, 0.0f, -25.0f};
+    float boxSizeAcademic3[3] = {35.0f, 30.0f, 18.0f};
+    hoveredAcademic3 = rayIntersectsBox(rayOrigin, rayDir, boxCenterAcademic3,boxSizeAcademic3 );
+
+    float boxCenterAcademic4[3] = {-100.0f, 0.0f, 25.0f};
+    float boxSizeAcademic4[3] = {35.0f, 30.0f, 18.0f};
+    hoveredAcademic4 = rayIntersectsBox(rayOrigin, rayDir, boxCenterAcademic4, boxSizeAcademic4);
+
+    float boxCenterLibrary[3] = {0.0f, 22.5f, -25.0f}; // y=0 + h/2 for center
+    float boxSizeLibrary[3] = {35.0f, 45.0f, 28.0f};
+    hoveredLibrary = rayIntersectsBox(rayOrigin, rayDir, boxCenterLibrary, boxSizeLibrary);
+
+    float boxCenterCafe[3] = {-35.0f, 6.0f, 70.0f}; // y=0 + h/2 for center
+    float boxSizeCafe[3] = {16.0f, 12.0f, 12.0f};
+    hoveredCafe = rayIntersectsBox(rayOrigin, rayDir, boxCenterCafe, boxSizeCafe);
+
+    float boxCenterMensDorm1[3] = {70.0f, 12.0f, -60.0f}; // y=0 + h/2 for center
+    float boxSizeMensDorm1[3] = {18.0f, 24.0f, 12.0f};
+    hoveredMensDorm1 = rayIntersectsBox(rayOrigin, rayDir, boxCenterMensDorm1, boxSizeMensDorm1);
+
+    float boxCenterMensDorm2[3] = {70.0f, 12.0f, -35.0f}; // y=0 + h/2 for center
+    float boxSizeMensDorm2[3] = {18.0f, 24.0f, 12.0f};
+    hoveredMensDorm2 = rayIntersectsBox(rayOrigin, rayDir, boxCenterMensDorm2, boxSizeMensDorm2);
+
+    float boxCenterWomensDorm1[3] = {70.0f, 12.0f, 35.0f}; // y=0 + h/2 for center
+    float boxSizeWomensDorm1[3] = {18.0f, 24.0f, 12.0f};
+    hoveredWomensDorm1 = rayIntersectsBox(rayOrigin, rayDir, boxCenterWomensDorm1, boxSizeWomensDorm1);
+    
+    float boxCenterWomensDorm2[3] = {70.0f, 12.0f, 60.0f}; // y=0 + h/2 for center
+    float boxSizeWomensDorm2[3] = {18.0f, 24.0f, 12.0f};
+    hoveredWomensDorm2 = rayIntersectsBox(rayOrigin, rayDir, boxCenterWomensDorm2, boxSizeWomensDorm2);
+
+
+ 
+        hoveredAvailability = (x >= WINDOW_WIDTH - 100 && x <= WINDOW_WIDTH - 10 &&
+        y >= 40 && y <= 100);
+    
+        isHoveredUserBox = (x >= WINDOW_WIDTH - 100 && x <= WINDOW_WIDTH - 10 &&
+        y >= 0 && y <= 30);
+    
 }
 
 // Draws a single parking space with white marking
@@ -1164,40 +1504,15 @@ void campusUpdate(int value)
     }
     else
     {
-        sunAngle = 225.0f;
-    }
+    sunAngle += 0.04f; // Moon moves slower at night (optional)
+    if (sunAngle > 360.0f)
+        sunAngle = 180.0f;
+        }
 
-    // Cloud animation (individual speeds are now handled in drawAnimatedClouds based on cloud.speed)
     cloudOffset += 0.1f;
     if (cloudOffset > 800.0f)
-        cloudOffset = -800.0f; // Wider loop for clouds
+        cloudOffset = -800.0f; 
 
-    // Car animation
-    for (auto &car : cars)
-    {
-        int currentTargetIdx = (car.pathPoint + 1) % carPath.size();
-        float targetX = carPath[currentTargetIdx].first;
-        float targetZ = carPath[currentTargetIdx].second;
-
-        float dirX = targetX - car.x;
-        float dirZ = targetZ - car.z;
-        float dist = sqrt(dirX * dirX + dirZ * dirZ);
-
-        // Update car angle for orientation
-        car.angle = atan2(dirX, dirZ) * 180.0f / M_PI;
-
-        if (dist < car.speed * 1.8f)
-        { // Increased threshold for smoother turning
-            car.pathPoint = currentTargetIdx;
-            car.x = targetX;
-            car.z = targetZ;
-        }
-        else
-        {
-            car.x += (dirX / dist) * car.speed;
-            car.z += (dirZ / dist) * car.speed;
-        }
-    }
 
     glutPostRedisplay();
     glutTimerFunc(16, campusUpdate, 0); // ~60 FPS
@@ -1254,12 +1569,100 @@ void campusSpecialKeys(int key, int x, int y)
     glutPostRedisplay();
 }
 
+
 void campusMouseButton(int button, int state, int x, int y)
 {
     lastMouseX = x;
     lastMouseY = y;
-    if (button == GLUT_LEFT_BUTTON)
+    if (button == GLUT_LEFT_BUTTON && state == GLUT_DOWN)
     {
+        if(hoveredAdminBlock){
+            setSelectedFalse();
+            isSelecedAdminBlock = true;
+        }
+        else if(hoveredAcademic1){
+            setSelectedFalse();
+            isSelecedAcademic1 = true;
+        }
+        else if(hoveredAcademic2){
+            setSelectedFalse();
+            isSelecedAcademic2 = true;
+        }
+        else if(hoveredAcademic3){
+            setSelectedFalse();
+            isSelecedAcademic3 = true;
+        }
+        else if(hoveredAcademic4){
+            setSelectedFalse();
+            isSelecedAcademic4 = true;
+        }
+        else if(hoveredLibrary){
+            setSelectedFalse();
+            isSelecedLibrary = true;
+        }
+        else if(hoveredWomensDorm1){
+            setSelectedFalse();
+            isSelecedWomensDorm1 = true;
+        }
+        else if(hoveredWomensDorm2){
+            setSelectedFalse();
+            isSelecedWomensDorm2 = true;
+        }
+        else if(hoveredMensDorm1){
+            setSelectedFalse();
+            isSelecedMensDorm1 = true;
+        }
+        else if(hoveredMensDorm2){
+            setSelectedFalse();
+            isSelecedMensDorm2 = true;
+        }
+        else if(hoveredCafe){
+            setSelectedFalse();
+            isSelecedCafe = true;
+        }
+        else if(hoveredAvailability){
+            if(isAdmin){
+            if(isSelecedAdminBlock){
+                buldingStatus[0] = (buldingStatus[0] + 1) % 4; // Cycle through states
+            }
+            else if(isSelecedAcademic1){
+                buldingStatus[1] = (buldingStatus[1] + 1) % 4;
+            }
+            else if(isSelecedAcademic2){
+                buldingStatus[2] = (buldingStatus[2] + 1) % 4;
+            }
+            else if(isSelecedAcademic3){
+                buldingStatus[3] = (buldingStatus[3] + 1) % 4;
+            }
+            else if(isSelecedAcademic4){
+                buldingStatus[4] = (buldingStatus[4] + 1) % 4;
+            }
+            else if(isSelecedLibrary){
+                buldingStatus[5] = (buldingStatus[5] + 1) % 4;
+            }
+            else if(isSelecedWomensDorm1){
+                buldingStatus[6] = (buldingStatus[6] + 1) % 4;
+            }
+            else if(isSelecedWomensDorm2){
+                buldingStatus[7] = (buldingStatus[7] + 1) % 4;
+            }
+            else if(isSelecedMensDorm1){
+                buldingStatus[8] = (buldingStatus[8] + 1) % 4;
+            }
+            else if(isSelecedMensDorm2){
+                buldingStatus[9] = (buldingStatus[9] + 1) % 4;
+            }
+            else if(isSelecedCafe){
+                buldingStatus[10] = (buldingStatus[10] + 1) % 4;
+            }}
+        }
+        else if(isHoveredUserBox){
+            isAdmin = !isAdmin;
+        }
+
+        else{
+            setSelectedFalse();
+        }
         mouseLeftDown = (state == GLUT_DOWN);
     }
     else if (button == GLUT_RIGHT_BUTTON)
@@ -1316,7 +1719,15 @@ void campusMouseMove(int x, int y)
 
     lastMouseX = x;
     lastMouseY = y;
+
+    checkHover(x,y);
     updateCameraPosition();
+    glutPostRedisplay();
+}
+
+void passiveMotion(int x, int y)
+{
+    checkHover(x, y);
     glutPostRedisplay();
 }
 
