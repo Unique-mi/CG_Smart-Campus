@@ -12,3 +12,4 @@ void campusKeyboard(unsigned char key, int x, int y);
 void campusSpecialKeys(int key, int x, int y);
 void campusMouseButton(int button, int state, int x, int y);
 void campusMouseMove(int x, int y);
+void passiveMotion(int x, int y);

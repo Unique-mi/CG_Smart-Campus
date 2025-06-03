@@ -18,6 +18,8 @@ int main(int argc, char** argv) {
     glutMouseFunc(campusMouseButton);
     glutMotionFunc(campusMouseMove);
     glutTimerFunc(0, campusUpdate, 0);
+    glutPassiveMotionFunc(passiveMotion);
+
 
     std::cout << "Interactive 3D Smart Campus - Enhanced Realism" << std::endl;
     std::cout << "Controls:" << std::endl;
