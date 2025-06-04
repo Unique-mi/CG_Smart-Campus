@@ -773,7 +773,6 @@ void drawGardenArea()
     drawTree(10, 0, 93);
 
     // === CHAIRS ===
-    // 4 Chairs facing cafe (assuming cafe is in +Z direction)
     glPushMatrix();
     glTranslatef(-43, 0, 82);
     drawChair(0, 0, 0);
@@ -791,7 +790,6 @@ void drawGardenArea()
     drawChair(0, 0, 0);
     glPopMatrix();
 
-    // 4 Chairs facing away from cafe (rotated 180�)
     glPushMatrix();
     glTranslatef(-38, 0, 89);
     glRotatef(180, 0, 1, 0);
@@ -890,9 +888,9 @@ void drawCampusBuildings()
     drawDormitory(70, yDormW2, 60,  18, 24, 12, 0.76f, 0.75f, 0.68f, 2, 3, 2, 4, "Womens Dorm 2");
     // Admin Block
 
-drawAdminBlock(40, yAdmin, -70, 26, 20, 16, 0.85f, 0.85f, 0.7f, 2, 3, 2, 3, "Admin Block");
+drawAdminBlock(0, yAdmin, 25, 26, 20, 16, 0.85f, 0.85f, 0.7f, 2, 3, 2, 3, "Admin Block");
     // Cafe
-    drawCafe(-35, yCafe, 70, 16, 12, 12, 0.9f, 0.75f, 0.75f, 2, 2, 2, 2, "Cafe");
+    drawCafe(0, yCafe, 50, 16, 12, 12, 0.9f, 0.75f, 0.75f, 2, 2, 2, 2, "Cafe");
 
     if(isAdmin)
 {     drawInfoBox(5, 10, 70, 30, "Admin");
@@ -1032,7 +1030,7 @@ void checkHover(int x, int y)
         rayDir[0] /= len; rayDir[1] /= len; rayDir[2] /= len;
     }
 
-    float boxCenterAdmin[3] = {40.0f, 10.0f, -70.0f}; // y=0 + h/2 for center
+    float boxCenterAdmin[3] = {0.0f, 10.0f, 25.0f}; // y=0 + h/2 for center
     float boxSizeAdmin[3] = {26.0f, 20.0f, 16.0f};
     hoveredAdminBlock = rayIntersectsBox(rayOrigin, rayDir, boxCenterAdmin, boxSizeAdmin);
 
@@ -1057,7 +1055,7 @@ void checkHover(int x, int y)
     float boxSizeLibrary[3] = {35.0f, 45.0f, 28.0f};
     hoveredLibrary = rayIntersectsBox(rayOrigin, rayDir, boxCenterLibrary, boxSizeLibrary);
 
-    float boxCenterCafe[3] = {-35.0f, 6.0f, 70.0f}; // y=0 + h/2 for center
+    float boxCenterCafe[3] = {0.0f, 6.0f, 50.0f}; // y=0 + h/2 for center
     float boxSizeCafe[3] = {16.0f, 12.0f, 12.0f};
     hoveredCafe = rayIntersectsBox(rayOrigin, rayDir, boxCenterCafe, boxSizeCafe);
 
@@ -1128,8 +1126,8 @@ void drawParkingSpace(float x, float y, float z, float angle = 0.0f)
 // Draws the full parking lot for 20 cars, 2 rows of 10, facing each other
 void drawParkingLot(float baseX, float baseY, float baseZ)
 {
-    int carsPerRow = 17;
-    float spaceWidth = 2.5f, spaceLength = 5.5f, gapBetweenRows = 2.0f;
+    int carsPerRow = 20;
+    float spaceWidth = 3.4f, spaceLength = 8.0f, gapBetweenRows = 2.0f;
     float lotWidth = carsPerRow * spaceWidth + (carsPerRow - 1) * 0.3f;
 
     // Draw ground lot area
@@ -1414,7 +1412,7 @@ void drawSimplifiedBirds()
         glColor3f(0.15f, 0.15f, 0.15f);
         glDisable(GL_LIGHTING);
         glLineWidth(2.5f);
-        for (int i = 0; i < 3; ++i)
+        for (int i = 0; i < 4; ++i)
         {                                                                   // 3 birds
             float birdX = 20.0f + i * 15 + sin(cloudOffset * 0.1f + i) * 5; // Move side to side
             float birdY = 60.0f + sin(cloudOffset * 0.05f + i * 0.5f) * 3;  // Move up and down
@@ -1453,7 +1451,7 @@ void campusDisplay()
     drawGroundPlane();
     drawRoads();
     drawCampusBuildings();
-    drawParkingLot(0, 0, -67);
+    drawParkingLot(0, 0, -70);
     drawBasketballCourt(102, 5.0f, -80.0f);
 
     drawFootballCourt();
